@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Unix shim. Drop this dir on PATH and run `claudebuddy` from anywhere.
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$DIR/bridge.py" "$@"
