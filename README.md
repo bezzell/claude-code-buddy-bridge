@@ -125,7 +125,15 @@ Restart any open Claude Code sessions so they reload the hook config.
 
 ### Bypassing the stick (auto mode)
 
-PreToolUse hooks fire on every matching tool call regardless of Claude Code's permission mode, so if you're running in auto / `acceptEdits` / `--dangerously-skip-permissions`, the stick would still keep getting pinged. Two ways to silence it without editing `settings.json`:
+The hook automatically detects Claude Code's active `permission_mode` and skips the stick when Claude itself wouldn't have prompted you:
+
+- `bypassPermissions` (i.e. `--dangerously-skip-permissions` or `/permissions bypass`) → skip
+- `plan` (planning mode, no tools execute) → skip
+- `default` and `acceptEdits` → prompt the stick as normal (because Bash still requires confirmation in `acceptEdits` — only file writes get auto-approved)
+
+So if you just run `claude --dangerously-skip-permissions`, the stick will stay quiet without any additional configuration.
+
+For cases the automatic detection doesn't cover (per-tool allowlists in `settings.json`, `/permissions` slash command additions, etc.), two manual opt-outs:
 
 - **Per-shell:** set `CLAUDE_BUDDY_AUTO=1` in the terminal before running `claude`. Other terminals still use the stick.
   ```powershell

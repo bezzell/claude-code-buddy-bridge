@@ -89,10 +89,20 @@ def main():
     tool = hook_input.get("tool_name") or "tool"
     tool_input = hook_input.get("tool_input") or {}
 
-    # Bypass paths: PreToolUse hooks fire for every matching tool call,
-    # so even in auto mode the stick would keep getting pinged. These
-    # two opt-outs let the user silence the stick without uninstalling
-    # the hook or editing settings.json.
+    # Auto-detect "no prompt needed" modes. Claude Code passes the active
+    # permission_mode in every hook invocation; if it's a mode where Claude
+    # itself wouldn't ask the user, there's nothing to forward to the stick.
+    #   bypassPermissions: --dangerously-skip-permissions or `/permissions bypass`
+    #   plan: read-only planning, no tools should run
+    # `acceptEdits` deliberately falls through — it auto-approves file
+    # writes/edits but Bash still requires confirmation, so for our Bash
+    # matcher the stick should still get involved.
+    permission_mode = hook_input.get("permission_mode")
+    if permission_mode in ("bypassPermissions", "plan"):
+        sys.exit(0)
+
+    # Manual bypass paths for cases the permission_mode check doesn't cover
+    # (per-tool allowlists, settings.json rules, etc.).
     if os.environ.get("CLAUDE_BUDDY_AUTO"):
         # Per-shell: set CLAUDE_BUDDY_AUTO=1 before running claude.
         sys.exit(0)
