@@ -123,6 +123,24 @@ The `matcher` is regex over tool names — expand to `"Bash|Write|Edit"` etc. as
 
 Restart any open Claude Code sessions so they reload the hook config.
 
+### Bypassing the stick (auto mode)
+
+PreToolUse hooks fire on every matching tool call regardless of Claude Code's permission mode, so if you're running in auto / `acceptEdits` / `--dangerously-skip-permissions`, the stick would still keep getting pinged. Two ways to silence it without editing `settings.json`:
+
+- **Per-shell:** set `CLAUDE_BUDDY_AUTO=1` in the terminal before running `claude`. Other terminals still use the stick.
+  ```powershell
+  $env:CLAUDE_BUDDY_AUTO = "1"   # PowerShell
+  export CLAUDE_BUDDY_AUTO=1     # bash/zsh
+  ```
+- **Global:** create a `mute` file in the IPC dir. Delete it to re-enable.
+  ```powershell
+  ni "$env:LOCALAPPDATA\claude-buddy-bridge\mute" -Force   # Windows
+  touch ~/.cache/claude-buddy-bridge/mute                  # Linux
+  touch ~/Library/Caches/claude-buddy-bridge/mute          # macOS
+  ```
+
+When either is set, the hook exits immediately and Claude Code's normal permission flow proceeds.
+
 ### What you'll see
 
 When Claude wants to run Bash:
