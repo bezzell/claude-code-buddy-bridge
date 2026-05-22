@@ -123,6 +123,32 @@ The `matcher` is regex over tool names — expand to `"Bash|Write|Edit"` etc. as
 
 Restart any open Claude Code sessions so they reload the hook config.
 
+### Bypassing the stick (auto mode)
+
+The hook automatically detects Claude Code's active `permission_mode` and skips the stick when Claude itself wouldn't have prompted you:
+
+- `bypassPermissions` (i.e. `--dangerously-skip-permissions` or `/permissions bypass`) → skip
+- `plan` (planning mode, no tools execute) → skip
+- `default` and `acceptEdits` → prompt the stick as normal (because Bash still requires confirmation in `acceptEdits` — only file writes get auto-approved)
+
+So if you just run `claude --dangerously-skip-permissions`, the stick will stay quiet without any additional configuration.
+
+For cases the automatic detection doesn't cover (per-tool allowlists in `settings.json`, `/permissions` slash command additions, etc.), two manual opt-outs:
+
+- **Per-shell:** set `CLAUDE_BUDDY_AUTO=1` in the terminal before running `claude`. Other terminals still use the stick.
+  ```powershell
+  $env:CLAUDE_BUDDY_AUTO = "1"   # PowerShell
+  export CLAUDE_BUDDY_AUTO=1     # bash/zsh
+  ```
+- **Global:** create a `mute` file in the IPC dir. Delete it to re-enable.
+  ```powershell
+  ni "$env:LOCALAPPDATA\claude-buddy-bridge\mute" -Force   # Windows
+  touch ~/.cache/claude-buddy-bridge/mute                  # Linux
+  touch ~/Library/Caches/claude-buddy-bridge/mute          # macOS
+  ```
+
+When either is set, the hook exits immediately and Claude Code's normal permission flow proceeds.
+
 ### What you'll see
 
 When Claude wants to run Bash:
