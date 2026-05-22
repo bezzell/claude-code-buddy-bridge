@@ -45,7 +45,7 @@ The wire protocol is the one defined in the upstream firmware's [REFERENCE.md](h
 ## Install
 
 ```bash
-git clone https://github.com/<you>/claude-code-buddy-bridge.git
+git clone https://github.com/bezzell/claude-code-buddy-bridge.git
 cd claude-code-buddy-bridge
 python3 -m pip install -r requirements.txt
 ```
